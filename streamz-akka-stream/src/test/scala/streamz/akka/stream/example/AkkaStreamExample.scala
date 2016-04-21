@@ -53,7 +53,7 @@ object FlowToProcess extends App {
   import Context._
 
   // Create flow
-  val f1: Source[Int, Unit] = Source(1 to 20)
+  val f1: Source[Int, akka.NotUsed] = Source(1 to 20)
   // Create process that subscribes to the flow
   val p1: Process[Task, Int] = f1.toProcess()
   // Run process
@@ -65,7 +65,7 @@ object FlowToProcess extends App {
 object FlowToProcessToManagedFlow extends App {
   import Context._
 
-  val f1: Source[Int, Unit] = Source(1 to 20)
+  val f1: Source[Int, akka.NotUsed] = Source(1 to 20)
   val p1: Process[Task, Int] = subscribe(f1)
   val p2: Process[Task, Unit] = p1.publish() { flow =>
     flow.map(println).to(Sink.onComplete(_ => system.terminate())) // use sink for cleanup
