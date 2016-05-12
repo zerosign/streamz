@@ -30,7 +30,7 @@ object ProcessToManagedFlow extends App {
     { materialized => materialized.onComplete(_ => system.terminate()) }
 
   // Run process
-  p2.run.run
+  p2.run.unsafePerformSync
 }
 
 object ProcessToUnManagedFlow extends App {
@@ -44,7 +44,7 @@ object ProcessToUnManagedFlow extends App {
   private val sink = Sink.foreach(println)
   val m = Source.fromPublisher(publisher).runWith(sink)
   // Run process
-  p2.run.run
+  p2.run.unsafePerformSync
   // use materialized result for cleanup
   m.onComplete(_ => system.terminate())
 }
@@ -57,7 +57,7 @@ object FlowToProcess extends App {
   // Create process that subscribes to the flow
   val p1: Process[Task, Int] = f1.toProcess()
   // Run process
-  p1.map(println).run.run
+  p1.map(println).run.unsafePerformSync
   // When p1 is done, f1 must be done as well
   system.terminate()
 }
@@ -70,5 +70,5 @@ object FlowToProcessToManagedFlow extends App {
   val p2: Process[Task, Unit] = p1.publish() { flow =>
     flow.map(println).to(Sink.onComplete(_ => system.terminate())) // use sink for cleanup
   }() // and ignore sink's "result"
-  p2.run.run
+  p2.run.unsafePerformSync
 }
